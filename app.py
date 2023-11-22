@@ -59,10 +59,10 @@ async def read_error_message(kind, ctx):
     except FileNotFoundError:
         # If the file does not exist, create it with default data
         data = {
-            "duped_file": ["Este archivo ya ha sido subido anteriormente"],
-            "uploaded_file": ["El archivo ha sido subido satisfactoriamente"],
-            "no_file_uploaded": ["Sube algo con el archivo"],
-            "no_images": ["No hay imagenes"]
+            "duped_file": ["gilipollas, esto ya se ha subido"],
+            "uploaded_file": ["gracias por la fotopolla"],
+            "no_file_uploaded": ["pero sube algo, masón de mierda"],
+            "no_images": ["No hay cosas duras, f"]
         }
         with open(json_filename, 'w') as new_json_file:
             json.dump(data, new_json_file, indent=4)
@@ -79,7 +79,7 @@ async def read_error_message(kind, ctx):
 async def save_image(ctx, folder_name, marker):
     # Check if the command has an attachment
     if len(ctx.message.attachments) == 0:
-        no_file_uploaded = await read_error_message("no_file_uploaded", ctx)
+        no_file_uploaded = read_error_message("no_file_uploaded", ctx)
         await ctx.send(f"{no_file_uploaded}")
         return
     attachment = ctx.message.attachments[0]
@@ -91,8 +91,8 @@ async def save_image(ctx, folder_name, marker):
     filename = f'server_lists/{guild_id}.csv'
     temp_folder = folder_name
     
-    duped_file = await read_error_message("duped_file", ctx)
-    uploaded_file = await read_error_message("uploaded_file", ctx)
+    duped_file = read_error_message("duped_file", ctx)
+    uploaded_file = read_error_message("uploaded_file", ctx)
     
     # Create the temp folder if it doesn't exist
     if not os.path.exists(temp_folder):
