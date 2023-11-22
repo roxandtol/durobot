@@ -69,4 +69,12 @@ Este comando guarda un video gracioso. tienes que pones un video
 
 Este comando muestra aleatoriamente un video gracioso que fue guardado.
 
+---
+
+### TODO:
+
+- mensajes custom para cada server
+- mas comandos de fotos y videos duros
+- comandos para admin
+
 De momento no hay ningún bot publico, pero proximamente habrá
