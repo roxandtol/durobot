@@ -37,6 +37,15 @@ async def lmaosave(ctx):
 async def lmao(ctx):
     await send_random_image(ctx, marker='1')
 
+@bot.command(name='durumsave')
+async def lmaosave(ctx):
+    await save_image(ctx, folder_name='durum_temp', marker='2')
+
+@bot.command(name='durum')
+async def lmao(ctx):
+    await send_random_image(ctx, marker='2')
+
+
 async def save_image(ctx, folder_name, marker):
     # Check if the command has an attachment
     if len(ctx.message.attachments) == 0:
