@@ -112,7 +112,7 @@ async def send_random_image(ctx, marker):
             random_duro = random.choice(duro_data)
             await ctx.send(f"{random_duro[0]}")
         else:
-            await ctx.send("No hay cosas duras, f")
+            raise FileNotFoundError
     except FileNotFoundError:
         await ctx.send("No hay cosas duras, f")
 
