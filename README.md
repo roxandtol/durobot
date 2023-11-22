@@ -71,6 +71,22 @@ Este comando muestra aleatoriamente un video gracioso que fue guardado.
 
 ---
 
+```
+!durumsave
+```
+
+Este comando guarda un durum, tienes que subir una foto de un durum
+
+--- 
+
+```
+!durum
+```
+
+Este comando muestra aleatoriamente un durum
+
+---
+
 ### TODO:
 
 - mensajes custom para cada server
