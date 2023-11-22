@@ -6,6 +6,7 @@ import os.path
 import csv
 import random
 import hashlib
+import json
 
 load_dotenv()
 
@@ -31,7 +32,7 @@ async def duro(ctx):
 
 @bot.command(name='lmaosave')
 async def lmaosave(ctx):
-    await save_image(ctx, folder_name='lmao_temp', marker='1')
+    await save_image(ctx, folder_name='temp', marker='1')
 
 @bot.command(name='lmao')
 async def lmao(ctx):
@@ -39,19 +40,48 @@ async def lmao(ctx):
 
 @bot.command(name='durumsave')
 async def lmaosave(ctx):
-    await save_image(ctx, folder_name='durum_temp', marker='2')
+    await save_image(ctx, folder_name='temp', marker='2')
 
 @bot.command(name='durum')
 async def lmao(ctx):
     await send_random_image(ctx, marker='2')
 
 
+async def read_error_message(kind, ctx):
+    guild_id = str(ctx.guild.id)
+    json_filename = f'server_configs/{guild_id}.json'
+    if not os.path.exists("server_configs"):
+        os.makedirs("server_configs")
+
+    try:
+        with open(json_filename, 'r') as json_file:
+            data = json.load(json_file)
+    except FileNotFoundError:
+        # If the file does not exist, create it with default data
+        data = {
+            "duped_file": ["Este archivo ya ha sido subido anteriormente"],
+            "uploaded_file": ["El archivo ha sido subido satisfactoriamente"],
+            "no_file_uploaded": ["Sube algo con el archivo"],
+            "no_images": ["No hay imagenes"]
+        }
+        with open(json_filename, 'w') as new_json_file:
+            json.dump(data, new_json_file, indent=4)
+
+    if kind in data:
+        if data[kind]:
+            # Return a random element from the specified array
+            return random.choice(data[kind])
+        else:
+            raise NothingInArray ("There's nothing in the array")
+    else:
+        raise NothingInArray ("There's nothing in the array")
+    
 async def save_image(ctx, folder_name, marker):
     # Check if the command has an attachment
     if len(ctx.message.attachments) == 0:
-        await ctx.send("pero sube algo, masón de mierda")
+        no_file_uploaded = await read_error_message("no_file_uploaded", ctx)
+        await ctx.send(f"{no_file_uploaded}")
         return
-
     attachment = ctx.message.attachments[0]
     attachment_url = attachment.url
     username = ctx.author.name
@@ -60,7 +90,10 @@ async def save_image(ctx, folder_name, marker):
     server_lists = 'server_lists'
     filename = f'server_lists/{guild_id}.csv'
     temp_folder = folder_name
-
+    
+    duped_file = await read_error_message("duped_file", ctx)
+    uploaded_file = await read_error_message("uploaded_file", ctx)
+    
     # Create the temp folder if it doesn't exist
     if not os.path.exists(temp_folder):
         os.makedirs(temp_folder)
@@ -87,7 +120,7 @@ async def save_image(ctx, folder_name, marker):
 
     if file_hash in existing_hashes:
         os.remove(file_path)  # Remove the duplicate file
-        await ctx.send("gilipollas, esto ya se ha subido")
+        await ctx.send(f"{duped_file}")
         return
 
     # Save attachment link, username, hash, and marker to the CSV file
@@ -95,11 +128,13 @@ async def save_image(ctx, folder_name, marker):
         csv_writer = csv.writer(csvfile)
         csv_writer.writerow([attachment_url, username, file_hash, marker])
 
-    await ctx.send("gracias por la fotopolla")
+    await ctx.send(f"{uploaded_file}")
 
 async def send_random_image(ctx, marker):
     guild_id = str(ctx.guild.id)
     filename = f'server_lists/{guild_id}.csv'
+    
+    no_images = read_error_message("no_images", ctx)
 
     # Read all attachment links and hashes from the CSV file
     try:
@@ -114,6 +149,6 @@ async def send_random_image(ctx, marker):
         else:
             raise FileNotFoundError
     except FileNotFoundError:
-        await ctx.send("No hay cosas duras, f")
+        await ctx.send(f"{no_images}")
 
 bot.run(TOKEN)

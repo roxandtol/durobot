@@ -39,13 +39,12 @@ python bot.py
 
 # Comandos:
 
-```bash
+```
 !durosave
 ```
 
 Este comando guarda una foto dura, tienes que pones una foto
 
----
 
 ```
 !duro
@@ -61,7 +60,6 @@ Este comando muestra aleatoriamente una foto dura anteriormente guardada en el s
 
 Este comando guarda un video gracioso. tienes que pones un video
 
---- 
 
 ```
 !lmao
@@ -77,7 +75,6 @@ Este comando muestra aleatoriamente un video gracioso que fue guardado.
 
 Este comando guarda un durum, tienes que subir una foto de un durum
 
---- 
 
 ```
 !durum
@@ -87,9 +84,16 @@ Este comando muestra aleatoriamente un durum
 
 ---
 
+### Cosas para admins
+
+Cuando corrais el bot por primera vez, se os crearán 2 carpetas con 1 archivo dentro de cada una.
+
+La carpeta `server_lists` contiene un archivo csv con el id de vuestro server. Este archivo contiene los links de los archivos, quien lo ha subido, su hash sha256 (usado para ver si el archivo ya existía), y su tipo (0 -> duro, 1 -> lmao, 2 -> durum).
+
+La carpeta `server_config` contiene un archivo json con el id de vuestro server. Este archivo contiene las frases que quieres que diga el bot cada vez que ocurre una acción.
+
 ### TODO:
 
-- mensajes custom para cada server
 - mas comandos de fotos y videos duros
 - comandos para admin
 
