@@ -79,7 +79,7 @@ async def read_error_message(kind, ctx):
 async def save_image(ctx, folder_name, marker):
     # Check if the command has an attachment
     if len(ctx.message.attachments) == 0:
-        no_file_uploaded = read_error_message("no_file_uploaded", ctx)
+        no_file_uploaded = await read_error_message("no_file_uploaded", ctx)
         await ctx.send(f"{no_file_uploaded}")
         return
     attachment = ctx.message.attachments[0]
@@ -91,8 +91,8 @@ async def save_image(ctx, folder_name, marker):
     filename = f'server_lists/{guild_id}.csv'
     temp_folder = folder_name
     
-    duped_file = read_error_message("duped_file", ctx)
-    uploaded_file = read_error_message("uploaded_file", ctx)
+    duped_file = await read_error_message("duped_file", ctx)
+    uploaded_file = await read_error_message("uploaded_file", ctx)
     
     # Create the temp folder if it doesn't exist
     if not os.path.exists(temp_folder):
@@ -134,7 +134,7 @@ async def send_random_image(ctx, marker):
     guild_id = str(ctx.guild.id)
     filename = f'server_lists/{guild_id}.csv'
     
-    no_images = read_error_message("no_images", ctx)
+    no_images = await read_error_message("no_images", ctx)
 
     # Read all attachment links and hashes from the CSV file
     try:
