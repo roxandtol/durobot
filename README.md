@@ -1,7 +1,8 @@
 # durobot - fotos duras
 
-## Descripción
- Este bot da fotos duras
+Este bot da fotos duras.
+
+[Invitar al server](https://discord.com/oauth2/authorize?client_id=1177340107649466468&scope=bot&permissions=83968)
 
 ## Configuración
 
@@ -96,5 +97,3 @@ La carpeta `server_config` contiene un archivo json con el id de vuestro server.
 
 - mas comandos de fotos y videos duros
 - comandos para admin
-
-De momento no hay ningún bot publico, pero proximamente habrá
