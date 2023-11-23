@@ -14,6 +14,7 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 PREFIX = '!'
 
 intents = discord.Intents.default()
+intents.members = True  # Required to access member information
 intents.message_content = True  # Required for message content
 bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 
@@ -21,29 +22,29 @@ bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 async def on_ready():
     print(f'We have logged in as {bot.user.name}')
 
-@bot.command(name='durosave')
-async def durosave(ctx):
-    await save_image(ctx, folder_name='temp', marker='0')
-
 @bot.command(name='duro')
 async def duro(ctx):
     await send_random_image(ctx, marker='0')
-
-@bot.command(name='lmaosave')
-async def lmaosave(ctx):
-    await save_image(ctx, folder_name='temp', marker='1')
 
 @bot.command(name='lmao')
 async def lmao(ctx):
     await send_random_image(ctx, marker='1')
 
-@bot.command(name='durumsave')
-async def lmaosave(ctx):
-    await save_image(ctx, folder_name='temp', marker='2')
-
 @bot.command(name='durum')
 async def lmao(ctx):
     await send_random_image(ctx, marker='2')
+    
+@bot.command(name='durosave')
+async def durosave(ctx):
+    await save_image(ctx, folder_name='temp', marker='0', save_to_public=False)
+
+@bot.command(name='lmaosave')
+async def lmaosave(ctx):
+    await save_image(ctx, folder_name='temp', marker='1', save_to_public=False)
+
+@bot.command(name='durumsave')
+async def durumsave(ctx):
+    await save_image(ctx, folder_name='temp', marker='2', save_to_public=True)
 
 async def read_error_message(kind, ctx):
     guild_id = str(ctx.guild.id)
@@ -57,10 +58,10 @@ async def read_error_message(kind, ctx):
     except FileNotFoundError:
         # If the file does not exist, create it with default data
         data = {
-            "duped_file": ["Este archivo ya se ha subido"],
-            "uploaded_file": ["El archivo se ha subido satisfactoriamente"],
-            "no_file_uploaded": ["No has subido ningun archivo al hacer el comando"],
-            "no_images": ["No hay fotos"],
+            "duped_file": ["gilipollas, esto ya se ha subido"],
+            "uploaded_file": ["gracias por la fotopolla"],
+            "no_file_uploaded": ["pero sube algo, masón de mierda"],
+            "no_images": ["No hay cosas duras, f"],
             "public_images": [True]
         }
         with open(json_filename, 'w') as new_json_file:
@@ -77,7 +78,7 @@ async def read_error_message(kind, ctx):
     else:
         raise NothingInArray("There's nothing in the array")
 
-async def save_image(ctx, folder_name, marker):
+async def save_image(ctx, folder_name, marker, save_to_public):
     # Check if the command has an attachment
     if len(ctx.message.attachments) == 0:
         no_file_uploaded = await read_error_message("no_file_uploaded", ctx)
@@ -96,14 +97,10 @@ async def save_image(ctx, folder_name, marker):
     duped_file = await read_error_message("duped_file", ctx)
     uploaded_file = await read_error_message("uploaded_file", ctx)
 
-    # Create the server list folder if it doesn't exist
-    if not os.path.exists(server_lists):
-        os.makedirs(server_lists)
-
     # Create the temp folder if it doesn't exist
     if not os.path.exists(temp_folder):
         os.makedirs(temp_folder)
-    
+
     # Create {guild_id}.csv if not exists
     if not os.path.exists(filename):
         open(filename, 'w').close()
@@ -129,8 +126,13 @@ async def save_image(ctx, folder_name, marker):
         await ctx.send(f"{duped_file}")
         return
 
-    # Save attachment link, username, hash, and marker to the CSV file
-    with open(filename, 'a', newline='') as csvfile:
+    # Save attachment link, username, hash, and marker to the appropriate CSV file
+    if save_to_public:
+        csv_filename = 'public.csv'
+    else:
+        csv_filename = f'server_lists/{guild_id}.csv'
+
+    with open(csv_filename, 'a', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
         csv_writer.writerow([attachment_url, username, file_hash, marker])
 
