@@ -58,10 +58,10 @@ async def read_error_message(kind, ctx):
     except FileNotFoundError:
         # If the file does not exist, create it with default data
         data = {
-            "duped_file": ["gilipollas, esto ya se ha subido"],
-            "uploaded_file": ["gracias por la fotopolla"],
-            "no_file_uploaded": ["pero sube algo, masón de mierda"],
-            "no_images": ["No hay cosas duras, f"],
+            "duped_file": ["Este archivo ya se ha subido"],
+            "uploaded_file": ["El archivo se ha subido satisfactoriamente"],
+            "no_file_uploaded": ["No has subido ningun archivo al hacer el comando"],
+            "no_images": ["No hay fotos"],
             "public_images": [True]
         }
         with open(json_filename, 'w') as new_json_file:
