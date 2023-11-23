@@ -90,7 +90,7 @@ Cuando corrais el bot por primera vez, se os crearán 2 carpetas con 1 archivo d
 
 La carpeta `server_lists` contiene un archivo csv con el id de vuestro server. Este archivo contiene los links de los archivos, quien lo ha subido, su hash sha256 (usado para ver si el archivo ya existía), y su tipo (0 -> duro, 1 -> lmao, 2 -> durum).
 
-La carpeta `server_config` contiene un archivo json con el id de vuestro server. Este archivo contiene las frases que quieres que diga el bot cada vez que ocurre una acción.
+La carpeta `server_config` contiene un archivo json con el id de vuestro server. Este archivo contiene las frases que quieres que diga el bot cada vez que ocurre una acción. Este archivo tambien contiene una configuración por si quieres usar fotos publicas o solo las privadas que subas tu. Simplemente cambia `use_public_images` a `true` si quieres usar las fotos publicas, o a `false` si solo quieres usar las que guardes con durosave
 
 ### TODO:
 
