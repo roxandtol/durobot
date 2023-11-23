@@ -14,7 +14,6 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 PREFIX = '!'
 
 intents = discord.Intents.default()
-intents.members = True  # Required to access member information
 intents.message_content = True  # Required for message content
 bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 
@@ -97,10 +96,14 @@ async def save_image(ctx, folder_name, marker):
     duped_file = await read_error_message("duped_file", ctx)
     uploaded_file = await read_error_message("uploaded_file", ctx)
 
+    # Create the server list folder if it doesn't exist
+    if not os.path.exists(server_lists):
+        os.makedirs(server_lists)
+
     # Create the temp folder if it doesn't exist
     if not os.path.exists(temp_folder):
         os.makedirs(temp_folder)
-
+    
     # Create {guild_id}.csv if not exists
     if not os.path.exists(filename):
         open(filename, 'w').close()
