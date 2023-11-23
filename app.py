@@ -14,7 +14,6 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 PREFIX = '!'
 
 intents = discord.Intents.default()
-intents.members = True  # Required to access member information
 intents.message_content = True  # Required for message content
 bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 
