@@ -46,7 +46,6 @@ async def lmaosave(ctx):
 async def lmao(ctx):
     await send_random_image(ctx, marker='2')
 
-
 async def read_error_message(kind, ctx):
     guild_id = str(ctx.guild.id)
     json_filename = f'server_configs/{guild_id}.json'
@@ -62,26 +61,30 @@ async def read_error_message(kind, ctx):
             "duped_file": ["gilipollas, esto ya se ha subido"],
             "uploaded_file": ["gracias por la fotopolla"],
             "no_file_uploaded": ["pero sube algo, masón de mierda"],
-            "no_images": ["No hay cosas duras, f"]
+            "no_images": ["No hay cosas duras, f"],
+            "public_images": [True]
         }
         with open(json_filename, 'w') as new_json_file:
             json.dump(data, new_json_file, indent=4)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Error decoding JSON in {json_filename}. {str(e)}")
 
     if kind in data:
         if data[kind]:
             # Return a random element from the specified array
             return random.choice(data[kind])
         else:
-            raise NothingInArray ("There's nothing in the array")
+            raise NothingInArray("There's nothing in the array")
     else:
-        raise NothingInArray ("There's nothing in the array")
-    
+        raise NothingInArray("There's nothing in the array")
+
 async def save_image(ctx, folder_name, marker):
     # Check if the command has an attachment
     if len(ctx.message.attachments) == 0:
         no_file_uploaded = await read_error_message("no_file_uploaded", ctx)
         await ctx.send(f"{no_file_uploaded}")
         return
+
     attachment = ctx.message.attachments[0]
     attachment_url = attachment.url
     username = ctx.author.name
@@ -90,10 +93,10 @@ async def save_image(ctx, folder_name, marker):
     server_lists = 'server_lists'
     filename = f'server_lists/{guild_id}.csv'
     temp_folder = folder_name
-    
+
     duped_file = await read_error_message("duped_file", ctx)
     uploaded_file = await read_error_message("uploaded_file", ctx)
-    
+
     # Create the temp folder if it doesn't exist
     if not os.path.exists(temp_folder):
         os.makedirs(temp_folder)
@@ -132,19 +135,33 @@ async def save_image(ctx, folder_name, marker):
 
 async def send_random_image(ctx, marker):
     guild_id = str(ctx.guild.id)
-    filename = f'server_lists/{guild_id}.csv'
-    
+    guild_filename = f'server_lists/{guild_id}.csv'
+    public_filename = 'public.csv'
+
     no_images = await read_error_message("no_images", ctx)
 
-    # Read all attachment links and hashes from the CSV file
     try:
-        with open(filename, 'r', newline='') as csvfile:
-            csv_reader = csv.reader(csvfile)
-            duro_data = [(row[0], row[1], row[2]) for row in csv_reader if row[3] == marker]
+        if await read_error_message("public_images", ctx):
+            with open(public_filename, 'r', newline='') as public_csv:
+                public_reader = csv.reader(public_csv)
+                public_data = [(row[0], row[1], row[2]) for row in public_reader if row[3] == marker]
+        else:
+            public_data = []
+
+        # Check guild-specific CSV only if it exists
+        if os.path.exists(guild_filename):
+            with open(guild_filename, 'r', newline='') as guild_csv:
+                guild_reader = csv.reader(guild_csv)
+                guild_data = [(row[0], row[1], row[2]) for row in guild_reader if row[3] == marker]
+        else:
+            guild_data = []
+
+        # Combine guild-specific and public data
+        combined_data = guild_data + public_data
 
         # Get a random attachment link
-        if duro_data:
-            random_duro = random.choice(duro_data)
+        if combined_data:
+            random_duro = random.choice(combined_data)
             await ctx.send(f"{random_duro[0]}")
         else:
             raise FileNotFoundError
