@@ -44,6 +44,24 @@ async def lmaosave(ctx):
 @bot.command(name='durumsave')
 async def durumsave(ctx):
     await save_image(ctx, folder_name='temp', marker='2', save_to_public=True)
+    
+async def update_recent_attachment(json_filename, attachment_url):
+    # Load JSON data
+    with open(json_filename, 'r') as json_file:
+        data = json.load(json_file)
+    
+    # Add attachment URL to the recent list
+    data["recent"].append(attachment_url)
+    
+    # Remove the first attachment URL if there are more than the specified amount in the json in the recent list
+    max_data = data["recent_amount"]
+    
+    if len(data["recent"]) > max_data:
+        data["recent"].pop(0)
+    
+    # Write updated data back to JSON file
+    with open(json_filename, 'w') as json_file:
+        json.dump(data, json_file, indent=4)
 
 async def read_error_message(kind, ctx):
     guild_id = str(ctx.guild.id)
@@ -57,11 +75,13 @@ async def read_error_message(kind, ctx):
     except FileNotFoundError:
         # If the file does not exist, create it with default data
         data = {
-            "duped_file": ["gilipollas, esto ya se ha subido"],
-            "uploaded_file": ["gracias por la fotopolla"],
-            "no_file_uploaded": ["pero sube algo, masón de mierda"],
+            "duped_file": ["Esto ya se ha subido"],
+            "uploaded_file": ["Gracias por la foto"],
+            "no_file_uploaded": ["No has subido nada"],
             "no_images": ["No hay cosas duras, f"],
-            "public_images": [True]
+            "public_images": [True],
+            "recent_amount": 10,
+            "recent": []
         }
         with open(json_filename, 'w') as new_json_file:
             json.dump(data, new_json_file, indent=4)
@@ -134,6 +154,10 @@ async def save_image(ctx, folder_name, marker, save_to_public):
     with open(csv_filename, 'a', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
         csv_writer.writerow([attachment_url, username, file_hash, marker])
+    
+    # Update the recent attachment in the JSON file
+    json_filename = f'server_configs/{guild_id}.json'
+    await update_recent_attachment(json_filename, attachment_url)
 
     await ctx.send(f"{uploaded_file}")
 
@@ -162,11 +186,20 @@ async def send_random_image(ctx, marker):
 
         # Combine guild-specific and public data
         combined_data = guild_data + public_data
+        
+        # Filter out attachments that are in the recent list
+        json_filename = f'server_configs/{guild_id}.json'
+        with open(json_filename, 'r') as json_file:
+            recent_attachments = json.load(json_file)["recent"]
+        
+        combined_data = [data for data in combined_data if data[0] not in recent_attachments]
 
         # Get a random attachment link
         if combined_data:
             random_duro = random.choice(combined_data)
             await ctx.send(f"{random_duro[0]}")
+            # Update the recent attachment in the JSON file
+            await update_recent_attachment(json_filename, random_duro[0])
         else:
             raise FileNotFoundError
     except FileNotFoundError:
