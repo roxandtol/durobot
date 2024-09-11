@@ -7,6 +7,7 @@ import csv
 import random
 import hashlib
 import json
+import aiohttp
 
 load_dotenv()
 
@@ -15,12 +16,18 @@ PREFIX = '!'
 
 intents = discord.Intents.default()
 intents.message_content = True  # Required for message content
+intents.messages = True
 bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 
 @bot.event
 async def on_ready():
+    bot.http_session = aiohttp.ClientSession()
     print(f'We have logged in as {bot.user.name}')
 
+@bot.event
+async def on_close():
+    await bot.http_session.close()
+    
 @bot.command(name='duro')
 async def duro(ctx):
     await send_random_image(ctx, marker='0')
@@ -35,15 +42,45 @@ async def lmao(ctx):
     
 @bot.command(name='durosave')
 async def durosave(ctx):
-    await save_image(ctx, folder_name='temp', marker='0', save_to_public=False)
+    if ctx.message.reference is not None:
+        referenced_message = await ctx.message.channel.fetch_message(ctx.message.reference.message_id)
+        if referenced_message.attachments:
+            attachment = referenced_message.attachments[0]
+            attachment_url = attachment.url
+            username = referenced_message.author.name
+            await save_image(ctx, folder_name='temp', marker='0', save_to_public=False, attachment_url=attachment_url, username=username)
+        else:
+            await ctx.send("The referenced message has no attachments.")
+    else:
+        await save_image(ctx, folder_name='temp', marker='0', save_to_public=False)
 
 @bot.command(name='lmaosave')
 async def lmaosave(ctx):
-    await save_image(ctx, folder_name='temp', marker='1', save_to_public=False)
+    if ctx.message.reference is not None:
+        referenced_message = await ctx.message.channel.fetch_message(ctx.message.reference.message_id)
+        if referenced_message.attachments:
+            attachment = referenced_message.attachments[0]
+            attachment_url = attachment.url
+            username = referenced_message.author.name
+            await save_image(ctx, folder_name='temp', marker='0', save_to_public=False, attachment_url=attachment_url, username=username)
+        else:
+            await ctx.send("The referenced message has no attachments.")
+    else:
+        await save_image(ctx, folder_name='temp', marker='1', save_to_public=False)
 
 @bot.command(name='durumsave')
 async def durumsave(ctx):
-    await save_image(ctx, folder_name='temp', marker='2', save_to_public=True)
+    if ctx.message.reference is not None:
+        referenced_message = await ctx.message.channel.fetch_message(ctx.message.reference.message_id)
+        if referenced_message.attachments:
+            attachment = referenced_message.attachments[0]
+            attachment_url = attachment.url
+            username = referenced_message.author.name
+            await save_image(ctx, folder_name='temp', marker='0', save_to_public=False, attachment_url=attachment_url, username=username)
+        else:
+            await ctx.send("The referenced message has no attachments.")
+    else:
+        await save_image(ctx, folder_name='temp', marker='2', save_to_public=False)
     
 async def update_recent_attachment(json_filename, attachment_url):
     # Load JSON data
@@ -95,18 +132,19 @@ async def read_error_message(kind, ctx):
         else:
             raise NothingInArray("There's nothing in the array")
     else:
-        raise NothingInArray("There's nothing in the array")
+        raise NothingInArray("There's nothing in the array")    
+                    
+async def save_image(ctx, folder_name, marker, save_to_public, attachment_url=None, username=None):
+    # If no attachment_url or username provided, fall back to the original logic
+    if not attachment_url or not username:
+        if len(ctx.message.attachments) == 0:
+            no_file_uploaded = await read_error_message("no_file_uploaded", ctx)
+            await ctx.send(f"{no_file_uploaded}")
+            return
 
-async def save_image(ctx, folder_name, marker, save_to_public):
-    # Check if the command has an attachment
-    if len(ctx.message.attachments) == 0:
-        no_file_uploaded = await read_error_message("no_file_uploaded", ctx)
-        await ctx.send(f"{no_file_uploaded}")
-        return
-
-    attachment = ctx.message.attachments[0]
-    attachment_url = attachment.url
-    username = ctx.author.name
+        attachment = ctx.message.attachments[0]
+        attachment_url = attachment.url
+        username = ctx.author.name
 
     guild_id = str(ctx.guild.id)
     server_lists = 'server_lists'
@@ -125,8 +163,12 @@ async def save_image(ctx, folder_name, marker, save_to_public):
         open(filename, 'w').close()
 
     # Save the attachment to the temp folder
-    file_path = os.path.join(temp_folder, f'temp.{attachment.filename.split(".")[-1]}')
-    await attachment.save(file_path)
+    file_extension = attachment_url.split('.')[-1]
+    file_path = os.path.join(temp_folder, f'temp.{file_extension}')
+    
+    async with ctx.bot.http_session.get(attachment_url) as response:
+        with open(file_path, 'wb') as f:
+            f.write(await response.read())
 
     # Calculate SHA256 hash of the saved file
     hash_object = hashlib.sha256()
