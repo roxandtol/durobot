@@ -50,7 +50,8 @@ async def durosave(ctx):
             username = referenced_message.author.name
             await save_image(ctx, folder_name='temp', marker='0', save_to_public=False, attachment_url=attachment_url, username=username)
         else:
-            await ctx.send("The referenced message has no attachments.")
+            reply_nothing = await read_error_message("reply_nothing", ctx)
+            await ctx.send(f"{reply_nothing}")
     else:
         await save_image(ctx, folder_name='temp', marker='0', save_to_public=False)
 
@@ -64,7 +65,8 @@ async def lmaosave(ctx):
             username = referenced_message.author.name
             await save_image(ctx, folder_name='temp', marker='0', save_to_public=False, attachment_url=attachment_url, username=username)
         else:
-            await ctx.send("The referenced message has no attachments.")
+            reply_nothing = await read_error_message("reply_nothing", ctx)
+            await ctx.send(f"{reply_nothing}")
     else:
         await save_image(ctx, folder_name='temp', marker='1', save_to_public=False)
 
@@ -78,7 +80,8 @@ async def durumsave(ctx):
             username = referenced_message.author.name
             await save_image(ctx, folder_name='temp', marker='0', save_to_public=False, attachment_url=attachment_url, username=username)
         else:
-            await ctx.send("The referenced message has no attachments.")
+            reply_nothing = await read_error_message("reply_nothing", ctx)
+            await ctx.send(f"{reply_nothing}")
     else:
         await save_image(ctx, folder_name='temp', marker='2', save_to_public=False)
     
@@ -117,6 +120,7 @@ async def read_error_message(kind, ctx):
             "no_file_uploaded": ["No has subido nada"],
             "no_images": ["No hay cosas duras, f"],
             "public_images": [True],
+            "reply_nothing": ["No has respondido a una imagen"],
             "recent_amount": 10,
             "recent": []
         }
